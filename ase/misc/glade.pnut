@@ -1,0 +1,119 @@
+
+/* SKIP_CHECKMEM */
+
+Perl.Use("Gtk2");
+Perl.Use("Gtk2::GladeXML");
+Perl.Use("IO::File");
+
+gtk = Perl.Methods["Gtk2"];
+gtk.init();
+gtkclipboard = Perl.Methods["Gtk2::Clipboard"];
+clipboard_atom = Perl.Methods["Gtk2::Gdk::Atom"].intern("CLIPBOARD");
+gladexml = Perl.NewInstance("Gtk2::GladeXML", "pmcnotepad.glade");
+mainwin = gladexml.get_widget("mainwindow");
+display = mainwin.get_display();
+clipboard = gtkclipboard.get_for_display(display, clipboard_atom);
+textview = gladexml.get_widget("textview");
+textbuf = textview.get_buffer();
+
+shared_data = {"current_filename" => null};
+shared_data["current_filename"] = null;
+function select_file(title) {
+  fs = Perl.NewInstance("Gtk2::FileSelection", title);
+  if (shared_data["current_filename"]) {
+    fs.set_filename(shared_data["current_filename"]);
+  }
+  response = fs.run();
+  r = null;
+  if (response == "ok") {
+    shared_data["current_filename"] = fs.get_filename();
+    r = shared_data["current_filename"];
+  }
+  fs.destroy();
+  return r;
+}
+function read_file(filename) {
+  s = "";
+  fh = Perl.NewInstance("IO::File", filename, "r");
+  if (!fh) {
+    return s;
+  }
+  x = 0;
+  while (x = fh.getline()) {
+    s += x;
+  }
+  fh.close();
+  return s;
+}
+function write_file(filename, str) {
+  fh = Perl.NewInstance("IO::File", filename, "w");
+  if (!fh) {
+    return 1;
+  }
+  fh.write(str, str.length());
+  return fh.close();
+}
+function cb_delete_event(x, y) {
+  gtk.main_quit();
+}
+function cb_on_quit_activate(x, y) {
+  gtk.main_quit();
+}
+function cb_on_new_activate(x, y) {
+  textbuf.delete_interactive(textbuf.get_start_iter(),
+    textbuf.get_end_iter(), 1);
+  shared_data["current_filename"] = null;
+}
+function cb_on_open_activate(x, y) {
+  if (select_file("open")) {
+    s = read_file(shared_data["current_filename"]);
+    if (s) {
+      textbuf.set_text(s);
+    }
+  }
+}
+function cb_on_save_activate(x, y) {
+  if (!shared_data["current_filename"]) {
+    if (!select_file("save")) {
+      return;
+    }
+  }
+  s = textbuf.get_text(textbuf.get_start_iter(),
+    textbuf.get_end_iter(), 0);
+  write_file(shared_data["current_filename"], s);
+}
+function cb_on_save_as_activate(x, y) {
+  if (!select_file("save")) {
+    return;
+  }
+  s = textbuf.get_text(textbuf.get_start_iter(),
+    textbuf.get_end_iter(), 0);
+  write_file(shared_data["current_filename"], s);
+}
+
+function cb_on_cut_activate(x, y) {
+  textbuf.cut_clipboard(clipboard, 1);
+}
+function cb_on_copy_activate(x, y) {
+  textbuf.copy_clipboard(clipboard);
+}
+function cb_on_paste_activate(x, y) {
+  textbuf.paste_clipboard(clipboard, undefined, 1);
+}
+function cb_on_delete_activate(x, y) {
+  textbuf.delete_selection(1, 1);
+}
+
+mainwin.signal_connect("delete_event", cb_delete_event);
+gladexml.signal_autoconnect_all("on_quit_activate", cb_on_quit_activate);
+gladexml.signal_autoconnect_all("on_new_activate", cb_on_new_activate);
+gladexml.signal_autoconnect_all("on_open_activate", cb_on_open_activate);
+gladexml.signal_autoconnect_all("on_save_activate", cb_on_save_activate);
+gladexml.signal_autoconnect_all("on_save_as_activate", cb_on_save_as_activate);
+gladexml.signal_autoconnect_all("on_cut_activate", cb_on_cut_activate);
+gladexml.signal_autoconnect_all("on_copy_activate", cb_on_copy_activate);
+gladexml.signal_autoconnect_all("on_paste_activate", cb_on_paste_activate);
+gladexml.signal_autoconnect_all("on_delete_activate", cb_on_delete_activate);
+
+gtk.main();
+

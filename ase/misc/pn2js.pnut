@@ -1,0 +1,7 @@
+
+x = JS.eval("new Object()");
+x.foo = "fooval";
+System.out.println(x.foo);
+function bar(n) { return n + n; }
+x.bar = bar;
+System.out.println(x.bar);

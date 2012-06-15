@@ -1,0 +1,18 @@
+compare [foo] [bar]
+compare [baz] [fubar]
+compare [0] [99]
+compare [foo] [fubar]
+compare [foo] [baz]
+compare [bar] [baz]
+compare [99] [ABCDE]
+compare [fubar] [ABCDE]
+compare [ABCDE] [foo]
+compare [ABCDE] [baz]
+compare [ABCDE] [bar]
+0: fubar
+1: foo
+2: baz
+3: bar
+4: ABCDE
+5: 99
+6: 0

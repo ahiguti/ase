@@ -1,0 +1,283 @@
+
+--------------------------------------------------------------------
+インタプリタ作成
+
+lua_State *lua_newstate (lua_Alloc f, void *ud);
+(代わりにluaL_newstateを使え)
+void lua_close (lua_State *L);
+
+--------------------------------------------------------------------
+スレッド作成
+
+lua_State *lua_newthread (lua_State *L);
+スタックに新しいスレッドをpushし、そのスレッドの実行ステートオブジェ
+クトを返す。この新しい実行ステートは、元の実行ステートとグローバルオ
+ブジェクトを共有しているが、ランタイムスタックは独立している。スレッ
+ドオブジェクトはGCによって寿命管理される。
+
+-------------------------------------------------------------------
+スタック操作
+
+LuaではCとの間で値を受け渡しするために、仮想スタックが利用される。
+LuaからC関数が呼ばれるたびに、スタックが新しく作られる。初期状態とし
+て、その関数への引数がスタックに入っている。スタックの大きさは
+int lua_gettop(lua_State *L);
+で取得できる。lua_gettopが返す値をtopとすると、インデックスは
+1 <= abs(index) <= top の範囲が「有効な」インデックスである。インデッ
+クス1がボトム、最大の有効なインデックスがトップと呼ばれる。負のイン
+デックスは、スタックのトップからのオフセットを表す(-1がトップ、-topが
+ボトム)。
+
+void lua_settop(lua_State *L, int index);
+スタックのサイズを変える。元のサイズより小さくなる場合は、ボトムから
+indexまでの値に変化はない。元のサイズより大きくなる場合は、増えた部分
+の要素はnilにセットされる。
+
+void lua_pushvalue(lua_State *L, int index);
+indexの位置の値を取得し、スタックを一つ伸ばし、新しい要素に取得した値
+をセットする。
+
+void lua_remove(lua_State *L, int index);
+indexの位置の値を削除し、そこからtopまでの各要素をボトム側へ一つずら
+す。サイズは一つ小さくなる。擬似インデックスは使えない。
+
+void lua_insert(lua_State *L, int index);
+スタックトップの値を取得し、indexからトップ未満の各要素をトップ側へ一
+つずらし、取得した旧スタックトップの値をindexの位置にセットする。サイ
+ズは変わらない。擬似インデックスは使えない。
+
+void lua_replace(lua_State *L, int index);
+スタックトップの値を取得し、indexの位置にセットする。サイズは一つ小さ
+くなる。
+
+#define lua_pop(L,n)   lua_settop(L, -(n)-1)
+スタックトップからn個を削除する。
+
+--------------------------------------------------------------------
+C関数への引数と戻り値
+
+Luaから呼ばれるC関数は、
+int foo(lua_State *L);
+のシグニチャを持つ。LuaからC関数が呼ばれたときに渡される引数は、最初
+の引数がボトム、最後の引数がトップの順でスタックに入っている。C関数が
+Luaに戻す戻り値は、順番通りにスタックにpushし、戻り値の数を返せばよい。
+戻ったときにスタックのボトム側に残っている余分な値は捨てられる。
+
+--------------------------------------------------------------------
+型判定
+
+Lua値の型を判定するには、以下の関数を使う。
+       int lua_type            (lua_State *L, int index);
+       int lua_isnil           (lua_State *L, int index);
+       int lua_isboolean       (lua_State *L, int index);
+       int lua_isnumber        (lua_State *L, int index);
+       int lua_isstring        (lua_State *L, int index);
+       int lua_istable         (lua_State *L, int index);
+       int lua_isfunction      (lua_State *L, int index);
+       int lua_iscfunction     (lua_State *L, int index);
+       int lua_isuserdata      (lua_State *L, int index);
+       int lua_islightuserdata (lua_State *L, int index);
+
+lua_typeが返す値は下のいずれかか、LUA_TNONE(有効でないインデックスが
+指定された場合)である。
+    LUA_TNIL
+    LUA_TNUMBER
+    LUA_TBOOLEAN
+    LUA_TSTRING
+    LUA_TTABLE
+    LUA_TFUNCTION
+    LUA_TUSERDATA
+    LUA_TTHREAD
+    LUA_TLIGHTUSERDATA
+lua_is*は1または0を返す。
+
+--------------------------------------------------------------------
+変換
+
+       int            lua_toboolean   (lua_State *L, int index);
+       lua_Number     lua_tonumber    (lua_State *L, int index);
+       const char    *lua_tostring    (lua_State *L, int index);
+       size_t         lua_strlen      (lua_State *L, int index);
+       lua_CFunction  lua_tocfunction (lua_State *L, int index);
+       void          *lua_touserdata  (lua_State *L, int index);
+       lua_State     *lua_tothread    (lua_State *L, int index);
+
+これらの関数は、スタック上の指定された位置の値を型変換してしまうこと
+があるので注意。型変換を避けるには先に型を調べるべし。
+
+--------------------------------------------------------------------
+スタックに値を積む
+
+       void lua_pushboolean       (lua_State *L, int b);
+       void lua_pushnumber        (lua_State *L, lua_Number n);
+       void lua_pushlstring       (lua_State *L, const char *s, size_t len);
+       void lua_pushstring        (lua_State *L, const char *s);
+       void lua_pushnil           (lua_State *L);
+       void lua_pushcfunction     (lua_State *L, lua_CFunction f);
+       void lua_pushlightuserdata (lua_State *L, void *p);
+
+lua_pushlstringとlua_pushstringは文字列sをコピーするので、関数を呼ん
+だ後はsを無効にしてよい。
+
+書式化文字列をスタックに積む:
+       const char *lua_pushfstring  (lua_State *L, const char *fmt, ...);
+	`%%´ (文字 `%´)
+	`%s´ (長さ指定のないゼロ終端文字列)
+	`%f´ (lua_Number)
+	`%d´ (int)
+	`%c´ (文字としての int)
+
+文字列を連結する:
+       void lua_concat (lua_State *L, int n);
+
+--------------------------------------------------------------------
+比較
+
+       int lua_equal    (lua_State *L, int index1, int index2);
+       int lua_rawequal (lua_State *L, int index1, int index2);
+       int lua_lessthan (lua_State *L, int index1, int index2);
+
+--------------------------------------------------------------------
+グローバルオブジェクト
+
+擬似インデックスLUA_GLOBALSINDEXを使うとグローバルオブジェクトにアク
+セスできる。グローバルオブジェクトはテーブルである。
+
+--------------------------------------------------------------------
+レジストリ
+
+擬似インデックスLUA_REGISTRYINDEXを使うとレジストリにアクセスできる。
+レジストリはテーブルである。レジストリに読み書きする場合は、キーが衝
+突しないように、自ライブラリが持つCポインタ値をキーとして使うとよい。
+
+--------------------------------------------------------------------
+上位値
+
+void lua_pushcclosure (lua_State *L, lua_CFunction fn, int n);
+スタックからn個の値をpopし、それらn個の値をencloseしたクロージャを
+pushする。
+
+lua_pushcclosureによって作られたクロージャから、作成時にencloseされ
+たデータ(上位値)を取得するには、lua_upvalueindex(i)マクロが返す擬似
+インデックスを使えばよい。1 <= i <= n。
+
+--------------------------------------------------------------------
+テーブル操作
+
+void lua_newtable (lua_State *L);
+スタックに新しいテーブルをpushする。
+
+void lua_gettable (lua_State *L, int index);
+void lua_rawget (lua_State *L, int index);
+スタックからキーをpopし、indexで指定されるテーブルのキーで参照される
+要素を読み、その値をスタックにpushする。rawgetのほうはメタ関数を呼ば
+ない。
+
+void lua_settable (lua_State *L, int index);
+void lua_rawset (lua_State *L, int index);
+スタックからキーと値をpopし、indexで指定されるテーブルのキーで参照さ
+れる位置に値を書き込む。rawsetのほうはメタ関数を呼ばない。
+
+void lua_rawgeti (lua_State *L, int index, int n);
+indexで指定されたテーブルのn番目の要素をスタックに積む。
+
+void lua_rawseti (lua_State *L, int index, int n);
+スタックから値をpopし、indexで指定されたテーブルのn番目の要素にその
+値をセットする。
+
+
+--------------------------------------------------------------------
+関数呼び出し
+
+void lua_call (lua_State *L, int nargs, int nresults);
+スタックから関数と引数(nargs個)をpopし、その関数を呼び出し、戻り値を
+nresults個に調整しそれらをpushする。ただしnresultsがLUA_MULTRETの場
+合は戻り値の調整がおこなわれず、関数が返した戻り値が全てpushされる。
+
+int lua_pcall (lua_State *L, int nargs, int nresults, int errfunc);
+エラーがなければlua_callと全く同一の動作をする。エラーが起きると0以
+外の値を返す。
+ LUA_ERRRUN --- 実行時エラー。
+ LUA_ERRMEM --- メモリ確保エラー。Luaはエラーハンドラ関数を呼ばない。
+ LUA_ERRERR --- エラーハンドラ関数内のエラー。 
+エラーが起きるとerrfuncインデックスで指定された関数を呼び、その戻り
+値がスタックに積まれる。errfuncが0ならエラー文字列がスタックに積まれ
+る。エラーの場合も関数と引数はpopされる。
+
+Luaが実行時エラーを起こすと、直近のlua_pcallまでlongjmpまたはC++例
+外で巻き戻される。lua_pcallの外でエラーが起きるとexit()する。
+
+void lua_error (lua_State *L);
+Luaのエラーを発生させる。スタックからエラー値がpopされる。この関数は
+戻ってこない。
+
+int lua_cpcall (lua_State *L, lua_CFunction func, void *ud);
+funcを保護モードで実行する。スタックにはudが積まれた状態でfuncが実行
+される。エラーが起きるとlua_pcallと同じエラーコードを返し、エラーオ
+ブジェクトがスタックに置かれる。成功すると0を返し、スタックは何も変
+えない。
+
+--------------------------------------------------------------------
+ユーザーデータ
+
+void *lua_newuserdata (lua_State *L, size_t size);
+sizeで指定されたサイズのメモリをヒープから確保し、そのアドレスを持つ
+フルユーザデータをpushし、アドレスを返す。フルユーザデータにはメタ
+テーブルをセットすることができる。
+
+void lua_pushlightuserdata (lua_State *L, void *p);
+ライトユーザデータをpushする。
+
+--------------------------------------------------------------------
+メタテーブル
+
+int lua_getmetatable (lua_State *L, int index);
+指定されたオブジェクトのメタテーブルをスタックに積む。ただし、もし
+オブジェクトがメタテーブルを持っていなければ0を返し、スタックには何
+も積まない。
+
+int lua_setmetatable (lua_State *L, int index);
+テーブルをpopし、indexで指定されたオブジェクトのメタテーブルとしてそ
+のテーブルをセットする。成功すれば1を返し、指定されたオブジェクトが
+ユーザデータでもテーブルでもなければ0を返す。いずれにせよスタックは
+一つ短くなる。
+
+メタテーブルがセットされたオブジェクトに対する以下の操作が実行される
+と、対応するメタテーブルの要素にセットされた関数(メタ関数)が呼ばれる。
+
+操作             要素          呼び出し形式
+-------------------------------------------------
+「+」演算        "__add"       h(v1, v2)
+「-」演算        "__sub"       h(v1, v2)
+「*」演算        "__mul"       h(v1, v2)
+「/」演算        "__div"       h(v1, v2)
+「^」演算        "__pow"       h(v1, v2)
+「-」演算(単項)  "__unm"       h(v, nil)
+「.」演算        "__concat"    h(v1, v2)
+「==」演算       "__eq"        h(v1, v2)
+「<」演算        "__lt"        h(v1, v2)
+「<=」演算       "__le"        h(v1, v2)
+table[key]       "__index"     h(table, key)
+table[key]=val   "__newindex"  h(table, key, val)
+関数呼び出し     "__call"      h(func, args...)
+ファイナライズ   "__gc"        h(userdata)
+
+--------------------------------------------------------------------
+標準ライブラリ
+
+int luaopen_base(lua_State *L);
+int luaopen_string(lua_State *L);
+int luaopen_table(lua_State *L);
+int luaopen_math(lua_State *L);
+int luaopen_io(lua_State *L);
+int luaopen_debug(lua_State *L);
+
+--------------------------------------------------------------------
+補助ライブラリ
+
+lua_State *luaL_newstate(void);
+int luaL_dofile (lua_State *L, const char *filename);
+int luaL_dostring (lua_State *L, const char *str);
+void luaL_openlibs (lua_State *L);
+int luaL_error (lua_State *L, const char *fmt, ...);
+

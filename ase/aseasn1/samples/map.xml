@@ -1,0 +1,7 @@
+<ASERemoteVariant>
+  <mapval>
+    <strval>foo</strval><intval>12</intval>
+    <strval>bar</strval><intval>9999</intval>
+    <strval>baz</strval><realval>32.99</realval>
+  </mapval>
+</ASERemoteVariant>

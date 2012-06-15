@@ -1,0 +1,23 @@
+getprop: this is prop-y
+getprop: this is prop-y
+getprop_smart: this is prop-y
+setprop: 99
+setprop_smart: 123
+invoke: 6
+invoke_smart: 19423
+tostr: (y val=this is prop-y) (x val=99) (z val=123) 
+enum1
+  k=y v=this is prop-y
+  k=x v=99
+  k=z v=123
+enum2
+  k=y v=this is prop-y
+  k=baz v=100
+  k=x v=99
+  k=z v=123
+enum3
+  k=y v=this is prop-y
+  k=fubar v=1200
+  k=baz v=100
+  k=x v=99
+  k=z v=123

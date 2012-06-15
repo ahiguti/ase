@@ -1,0 +1,19 @@
+
+var Integer = java.lang.Integer;
+var JArray = java.lang.reflect.Array;
+
+var arr = new JArray.NewInstance(Integer, 5);
+var x = new Integer(100);
+var y = new Integer(200);
+print(x.intValue());
+print(y.intValue());
+arr[0] = x;
+arr[1] = y;
+arr[2] = x;
+
+var r = 0;
+for (var i = 0; i < 1000000; ++i) {
+  r = arr[1];
+}
+print("r=" + r.intValue());
+

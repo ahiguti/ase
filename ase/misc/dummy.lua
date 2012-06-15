@@ -1,0 +1,2 @@
+
+local x = Dummy['foo']

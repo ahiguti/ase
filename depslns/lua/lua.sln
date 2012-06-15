@@ -1,0 +1,28 @@
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "lua", "lua.vcproj", "{796B99F1-4258-49BB-8C10-2C40A0B0FBB9}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "luaexe", "luaexe.vcproj", "{6ABAB0C3-2581-4FF4-BE9C-0F234BCA0304}"
+	ProjectSection(ProjectDependencies) = postProject
+		{796B99F1-4258-49BB-8C10-2C40A0B0FBB9} = {796B99F1-4258-49BB-8C10-2C40A0B0FBB9}
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{796B99F1-4258-49BB-8C10-2C40A0B0FBB9}.Debug|Win32.ActiveCfg = Debug|Win32
+		{796B99F1-4258-49BB-8C10-2C40A0B0FBB9}.Debug|Win32.Build.0 = Debug|Win32
+		{796B99F1-4258-49BB-8C10-2C40A0B0FBB9}.Release|Win32.ActiveCfg = Release|Win32
+		{796B99F1-4258-49BB-8C10-2C40A0B0FBB9}.Release|Win32.Build.0 = Release|Win32
+		{6ABAB0C3-2581-4FF4-BE9C-0F234BCA0304}.Debug|Win32.ActiveCfg = Debug|Win32
+		{6ABAB0C3-2581-4FF4-BE9C-0F234BCA0304}.Debug|Win32.Build.0 = Debug|Win32
+		{6ABAB0C3-2581-4FF4-BE9C-0F234BCA0304}.Release|Win32.ActiveCfg = Release|Win32
+		{6ABAB0C3-2581-4FF4-BE9C-0F234BCA0304}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

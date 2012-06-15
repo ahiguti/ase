@@ -1,0 +1,5 @@
+
+var HashMap = java.util.HashMap;
+var x = new HashMap();
+var y = x.get(100);
+print(y);

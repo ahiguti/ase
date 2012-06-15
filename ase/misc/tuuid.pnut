@@ -1,0 +1,7 @@
+
+UUID = Native.Util.UUID;
+for (i : 1..10) {
+  x = UUID();
+  System.out.println(x.upper());
+}
+

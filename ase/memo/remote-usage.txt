@@ -1,0 +1,90 @@
+
+-----------------------------------------------------------------
+
+$ cat luasvr.lua
+
+return {
+  foo = function()
+    print("FOO called");
+    return "FOO RETVAL";
+  end,
+  bar = function()
+    print("BAR called");
+    return "BAR RETVAL";
+  end
+}
+
+$ cat luacli.lua
+
+local args = ASE.Host.Args
+if (args[0] == nil) then
+  error("Usage: cli.lua HOST");
+end
+local Remote = ASE.CPP.Remote(args[0]);
+local o = Remote();
+print(o.foo());
+print(o.bar());
+print("done");
+
+$ ./asermtserver inet::10025 rmtsamples/luasvr.lua
+FOO called
+BAR called
+
+$ ./aserun rmtsamples/luacli.lua inet::10025
+FOO RETVAL
+BAR RETVAL
+done
+
+-----------------------------------------------------------------
+
+
+$ cat rmtsvr.cpp
+
+#include <ase/asecclass.hpp>
+#include <stdio.h>
+#define DBG(x)
+struct testsvr {
+  testsvr() : intval(0) {
+  }
+  void SetInt(int x) {
+    intval = x;
+    DBG(printf("s %p x=%d iv=%d\n", this, x, intval));
+  }
+  int GetInt() {
+    DBG(printf("g %p iv=%d\n", this, intval));
+    return intval;
+  }
+  int intval;
+};
+extern "C" {
+ASE_COMPAT_DLLEXPORT ase_variant
+ASE_DLLMain()
+{
+  ase_cclass<testsvr>::initializer()
+    .def("SetInt", &testsvr::SetInt)
+    .def("GetInt", &testsvr::GetInt)
+    .def("Create", &ase_cclass<testsvr>::create0)
+    ;
+  return ase_cclass<testsvr>::get_class();
+}
+};
+
+$ cat rmtcli.lua
+
+local args = ASE.Host.Args
+if (args[0] == nil) then
+  error("Usage: rmtcli.lua HOST");
+end
+local Remote = ASE.CPP.Remote(args[0]);
+local o = Remote.Create();
+o.SetInt(100);
+print(o.GetInt());
+print("done");
+
+$ ./asermtserver inet::10025 rmtsamples/libase-lib-rmtsvr.so
+
+$ ./aserun rmtsamples/rmtcli.lua inet::10025
+100
+done
+
+

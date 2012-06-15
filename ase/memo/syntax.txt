@@ -1,0 +1,54 @@
+
+obj.GetProperty("NAME")          // C++
+obj.NAME                         // JS, Lua
+obj['NAME']                      // JS, Lua
+obj->{NAME}                      // Perl
+
+obj.SetProperty("NAME", value)   // C++
+obj.NAME = value                 // JS, Lua
+obj['NAME'] = value              // JS, Lua
+obj->{NAME} = value              // Perl
+
+obj.GetElement(index)            // C++
+obj[index]                       // JS, Lua
+obj->[index]                     // Perl, if obj is an array object
+obj->{index}                     // Perl, if obj is not an array object
+
+obj.SetElement(index, value)     // C++
+obj[index] = value               // JS, Lua
+obj->[index] = value             // Perl, if obj is an array object
+obj->{index} = value             // Perl, if obj is not an array object
+
+obj.InvokeByName("NAME", argv)   // C++
+obj.MInvoke("NAME", arg0, ...)   // C++
+obj.NAME(arg0, ...)              // JS, Lua
+obj->NAME(arg0, ...)             // Perl
+
+obj.InvokeSelf(argv)             // C++
+obj.Invoke(arg0, ...)            // C++
+obj(arg0, ...)                   // JS, Lua
+obj->(arg0, ...)                 // Perl, if obj is a function object
+
+// C++
+ASE_Variant en = obj.GetEnumerator();
+ASE_String k;
+bool hasnext = false;
+while ((k = en.EnumNext(hasnext)), hasnext) {
+  ASE_Variant val = en.GetProperty(k);
+}
+// Lua
+local k
+for k in obj.Keys() do
+  local val = obj[k]
+end
+// JS
+var k;
+for k in obj {
+  var val = obj[k];
+}
+// Perl
+my $k;
+foreach $k in (keys %$obj) {
+  my $val = $obj->{$k};
+}
+

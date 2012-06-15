@@ -1,0 +1,16 @@
+#include "nsISupports.idl" 
+interface ITXPCCallback;
+[scriptable, uuid(e98b4099-12be-480a-b69f-284c28612f91)] 
+interface ITXPC : nsISupports 
+{ 
+  void setVerbose(in boolean verbose);
+  void setValue(in unsigned long val);
+  unsigned long getValue();
+  ITXPCCallback createCallback(in boolean verbose);
+  void createSaveCallback(in boolean verbose);
+  void doCallback(in ITXPCCallback cb, in unsigned long num);
+  void saveCallback(in ITXPCCallback cb, in boolean weak);
+  void doSavedCallback(in unsigned long num);
+  void clearSavedCallback();
+};
+

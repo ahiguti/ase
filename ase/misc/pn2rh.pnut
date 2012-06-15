@@ -1,0 +1,10 @@
+
+RObject = Rhino["Object"];
+RArray = Rhino["Array"];
+
+robj = RObject();
+robj["foo"] = "123";
+robj["bar"] = 45.98;
+System.out.println(robj["foo"]);
+System.out.println(robj["bar"]);
+

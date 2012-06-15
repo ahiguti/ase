@@ -1,0 +1,58 @@
+Summary: abstract script engines
+Name: ase
+Version: ___VERSION___
+Release: 1
+Group: System Environment/Libraries
+License: MIT/X11
+Source: ase-%{version}.tar.gz
+BuildRoot: /var/tmp/%{name}-%{version}-root
+BuildRequires: luacpp
+#, jsmt-devel, rhino
+Requires: luacpp
+#, jsmt
+
+%description
+
+%prep
+%setup
+
+%define _use_internal_dependency_generator 0
+
+%build
+make mini libase-scr-Lua.so libase-scr-Java.so
+pushd gtcpp && make all && popd
+
+%install
+rm -rf $RPM_BUILD_ROOT
+mkdir -p $RPM_BUILD_ROOT/%{_bindir}
+mkdir -p $RPM_BUILD_ROOT/%{_libdir}
+mkdir -p $RPM_BUILD_ROOT/%{_libexecdir}/ase
+mkdir -p $RPM_BUILD_ROOT/%{_libexecdir}/ase/samples
+mkdir -p $RPM_BUILD_ROOT/%{_libexecdir}/ase/svrsamples
+mkdir -p $RPM_BUILD_ROOT/%{_libexecdir}/ase/aseconf_d
+mkdir -p $RPM_BUILD_ROOT/usr/include/ase
+mkdir -p $RPM_BUILD_ROOT/usr/include/gtcpp
+install -m 755 libase-scr-*.so asejni.jar MakefileCommon.mk \
+	$RPM_BUILD_ROOT/%{_libexecdir}/ase
+install -m 755 libase-lib-Remote.so \
+	$RPM_BUILD_ROOT/%{_libexecdir}/ase/libase-lib-Remote.so
+# install -m 755 libase-scr-Rhino-js.jar \
+#	$RPM_BUILD_ROOT/%{_libexecdir}/ase
+install -m 755 aserun $RPM_BUILD_ROOT/%{_bindir}/aserun
+install -m 755 asermtserver $RPM_BUILD_ROOT/%{_bindir}/asermtserver
+install -m 755 libase.so $RPM_BUILD_ROOT/%{_libdir}
+install -m 755 gtcpp/libgtbase.so $RPM_BUILD_ROOT/%{_libdir}
+install -m 755 gtcpp/libgtposix.so $RPM_BUILD_ROOT/%{_libdir}
+install -m 644 ase/*.hpp $RPM_BUILD_ROOT/usr/include/ase
+install -m 644 gtcpp/*.hpp $RPM_BUILD_ROOT/usr/include/gtcpp
+install -m 644 aseconf_d/* $RPM_BUILD_ROOT/%{_libexecdir}/ase/aseconf_d
+install -m 644 samples/* $RPM_BUILD_ROOT/%{_libexecdir}/ase/samples
+cp -R svrsamples/* $RPM_BUILD_ROOT/%{_libexecdir}/ase/svrsamples
+
+%files
+%defattr(-, root, root)
+/usr/include/*
+%{_bindir}/*
+%{_libdir}/lib*
+%{_libexecdir}/*
+

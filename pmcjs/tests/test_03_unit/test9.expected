@@ -1,0 +1,12 @@
+type=RuntimeException
+error=PerlException
+func=pmc_funccall_internal
+description=Undefined subroutine &main::abc called. 
+string=(
+ etype: RuntimeException,
+ error: PerlException,
+ func: pmc_funccall_internal,
+ description: Undefined subroutine &main::abc called. ,
+ at: 
+  func=[] file=test9.js line=3
+)

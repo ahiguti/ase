@@ -1,0 +1,8 @@
+
+lib = Native.LibTest;
+r = 0;
+for (i : 1..10000000) {
+  r = lib.abs(-10);
+}
+System.out.println(r);
+

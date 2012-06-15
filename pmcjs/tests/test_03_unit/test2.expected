@@ -1,0 +1,6 @@
+getprop: this is prop-y
+getprop_smart: this is prop-y
+setprop: 99
+setprop_smart: 123
+invoke: abcdefghi
+invoke_smart: abcdefghi

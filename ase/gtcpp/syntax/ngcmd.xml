@@ -1,0 +1,8 @@
+<NGCmds>
+  <NGCmd>
+    <cmd>15</cmd>
+    <seq>seq-x</seq>
+    <bodyid>foo</bodyid>
+    <body>10449084f7ffd4</body>
+  </NGCmd>
+</NGCmds>

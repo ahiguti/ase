@@ -1,0 +1,6 @@
+
+print("AAAA");
+var r = Perl.Eval("2+3");
+print("BBBBB");
+print(r);
+

@@ -1,0 +1,4 @@
+[ bar foo ]
+[ barval fooval ]
+{ bar: barval foo: fooval }
+{ fooval: foo barval: bar }

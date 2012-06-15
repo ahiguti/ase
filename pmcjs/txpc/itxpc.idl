@@ -1,0 +1,8 @@
+#include "nsISupports.idl" 
+[scriptable, uuid(e98b4099-12be-480a-b69f-284c28612f91)] 
+interface ITXPC : nsISupports 
+{ 
+  void setValue(in unsigned long val);
+  unsigned long getValue();
+};
+

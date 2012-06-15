@@ -1,0 +1,50 @@
+
+  -- loading a type
+  local Math = CLR.Load("mscorlib", "System.Math")
+  -- calling a static method
+  local r = Math.Sqrt(3)
+  print(r)
+
+  // getting the 'Forms' namespace
+  var Forms = CLR.Load("System.Windows.Forms", "System.Windows.Forms");
+  // creating an instance of type Forms.Form
+  var x = Forms.Form();
+  // setting a property
+  x.Text = "Foo";
+  // calling an instance method
+  x.Show();
+  Forms.Application.Run(x);
+
+
+CLR.GetExecutingAssembly()
+  Returns the assembly currently executing.
+
+CLR.GetCore()
+  Returns mscorlib.dll.
+
+CLR.Load(modulename, [name])
+  Loads an assembly and returns it. If 'name' is supplied, gets the type
+  (or namespace) from the assembly and returns it.
+
+CLR.Implement(classtype, object)
+  Creates a dynamic proxy for a class. 'object' can be a non-CLR object.
+
+CLR.CreateDelegate(delegatetype, object)
+  Creates a dynamic proxy for a delegate. 'object' can be a non-CLR object.
+
+CLR.CreateWrapper(type, value)
+  Creates a wrapper object for a CLR value of type 'type'.
+
+CLR.EnumOr(values, ...)
+  Returns the bitwise OR of the specified values. 'values' must be of the
+  same enum type.
+
+CLR.AddEventHandler(object, eventname, handler)
+  Adds an event handler. 'handler' must be a function object.
+
+CLR.RemoveEventHandler(object, eventname, handler)
+  Removes an event handler.
+
+# CLR.LoadAssembly(modulename)
+# CLR.Extend(clrobject, aseobject)
+

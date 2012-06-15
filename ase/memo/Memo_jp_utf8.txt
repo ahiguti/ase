@@ -1,0 +1,368 @@
+
+
+TODO:
+
+winでのasejniを動作するように
+
+aseasn1/ asermtsvr/ を上の階層へ
+
+load_fileの動作整理
+
+aseremoteのdestroy実装
+
+ASE_SharedPtr(remoteobjに必要)
+DERエンコードされたデータの長さを読む関数(aseremoteに必要)
+
+"Host"削除、"Builtin"新設。?
+
+ccloaderのExecuteFileでdllが返すオブジェクトをinvokeするとき、
+引数の最初にASEGlobalオブジェクトを渡すように
+
+aseluaのImport廃止してUtilに同等の機能を持たせる？
+
+システムコールなどがerrno=ENOMEMを返した場合の対処など。
+deadlock freeになることを確認するために、mutexを整理せよ。UnifiedEngine
+のmutex, 各Variant実装オブジェクトのmutex, モジュール遅延ロードのmutex
+に絞ることができるか？
+
+ブラウザのCookie確認ダイアログが出ている間にクローズしようとすると例外
+(IEはクローズ不可になっている)
+
+JNIのAPI関数がJava例外を投げる可能性のある箇所をすべて洗い出し、そこで
+例外をチェックしているかどうか確認
+
+不必要にstd::bad_allocをcatchしている部分をなくす
+
+JSのエラー処理まわりを整理
+
+-----------------------------------------------------------------------
+load_file
+
+動作: ファイルを読み込み、それを実行し、実行結果を返す
+lua:
+  print("hoge");
+  return 10;
+  -> load_file()は10を返す
+cpp:
+  ASE_DLLMain() {
+    ...
+    return ase_cclass<hoge>::get_class();
+  }
+  -> load_file()はhogeクラスオブジェクトを返す
+java:
+  public class hoge extends LateBindingBase {
+    static public LateBinding ASEMain(LateBinding globals) {
+      return x;
+    }
+  }
+  -> load_file()はxを返す。ASEMainが無い場合はhogeクラスオブジェクトを返す。
+
+-----------------------------------------------------------------------
+例外 案1
+
+必1. 例外オブジェクトの型にかかわらず、同一の手段で例外IDが取得できること。
+必2. 例外が他の言語フレームを通っても例外IDが変わらないこと
+必3. トレースが全言語フレームについて取得できること -> なるべく
+必4. ある言語のFoo型の例外を投げると、ふたたびその言語でFoo型の例外として
+     catchできること(Javaなどの型付きの言語) -> 難しいか？
+ 
+
+try {
+  ...
+} catch (e) {
+  if (ASE.Exception.GetId(e) == "IOError") {
+    ...
+  } else {
+    print(ASE.Exception.GetTrace(e));
+  }
+}
+
+Throwable
+
+
+ある言語で投げた例外が、他の言語フレームを通って元の言語でキャッチ
+された場合、もともとのオブジェクトにトレースを付加するのは困難。
+そのため、どの言語で投げられた例外でも、一度ASEを通ると常に
+ase_arrayクラスのオブジェクトとして投げられる。
+
+各言語のase実装(invoke_by_name()など)が例外をキャッチすると、
+1. もしそれがase_arrayであれば、配列の末尾に、その言語の例外
+   オブジェクトをpush_backする。
+2. もしそうでないなら、ase_arrayを作り、その末尾に、その言語の
+   例外オブジェクトをpush_backする。
+
+例外オブジェクトをase_arrayにマーシャルするユーティリティ関数
+(ExceptionArray)を用意する。その関数を使えば、各言語から、
+いかなるオブジェクトも同じ型(ase_array)のオブジェクトとして処理
+できる。
+
+1. cがstd::exceptionをthrow
+2. engineのhandle_ase_exceptionで一旦catch
+   ase_arrayに変換し、末尾に通過情報をpush_back
+   engineの例外を発生させる
+3. engineのhandle_xx_exceptionで一旦catch
+   それがase_arrayかどうか(aseが発生させた例外かどうか)をしらべる
+   ase例外なら、engineの例外をpush_back
+   そうでないならase例外へ変換
+
+arr {
+  最初に投げられた例外,
+  途中で一旦捕獲された例外,
+  ...
+  最後に捕獲され投げられた例外
+}
+トレースは最後の例外をget_string()すればよい
+
+
+C++が投げた例外:
+  handleaseexception()の動作:
+  catch (...)で捕獲、aseexceptionに変換
+Javaが投げた例外:
+  Javaのコードを実行する部分の外側でhandleJavaException()
+  その例外がもしASEExceptionなら、valueフィールドを取り出す
+    (その際にASEExceptionオブジェクト自体をaseexceptionにpush_backし、
+     ASEExceptionのvalueフィールドはnullにする)
+  そうでなくてJavaの例外なら、aseexceptionに変換
+Luaが投げた例外:
+  Luaコードを実行する部分の外側でhandleLuaException()
+  その例外がもしaseexceptionならそれ自体を投げる
+    (その際にtraceをpush_backする?)
+  そうでないなら、aseexceptionに変換
+aseが投げた例外をJavaが受ける:
+  aseコードを実行する部分でhandleaseexception()
+  その例外をwrapするASEExceptionオブジェクトを作り、aseexceptionを
+    valueフィールドにセットする
+  そのASEExceptionオブジェクトをthrow
+aseが投げた例外をLuaが受ける:
+  aseコードを実行する部分でhandleaseexception()
+  そのaseexceptionをそのまま投げる
+    (その際にtraceをpush_backする?)
+
+ase_exception:
+  string typeid 例外識別文字列(St13runtime_errorのような)
+  string what 投げるときに指定された人間可読な文字列
+  variant value 最初に投げられたオブジェクト
+    (たとえばJavaのThrowableオブジェクト)
+  array trace 
+    各要素をget_string()してスタックトレースを取得
+
+ase_convert_to_ase_exception(prefix, value)
+  各種言語の例外オブジェクトをase_exceptionに変換
+ase_cpp_to_ase_exception(const std::exception& ex);
+  std::exceptionをase_exceptionに変換
+ase_new_exception(exid, desc)
+  aseが生成する例外
+
+ase呼び出しのtryブロック
+ase_variant ex;
+try {
+  ...
+} catch (const ase_variant& e) {
+  ex = e;
+} catch (const std::exception& e) {
+  ex = ase_cpp_to_ase_exception(e);
+} catch (...) {
+  ex = ase_new_exception("UnknownCPPException", "...");
+}
+
+Java呼び出しのcatch
+ase_variant ex;
+jobject *obj;
+if (obj is ASEException) {
+  /* ase_exceptionがwrapされている */
+  ex = obj->getWrapped();
+  obj->initWrapped();
+  ase_exception_append_trace(ex, to_ase_variant(obj));
+} else {
+  /* javaの例外 */
+  tname = obj->getClass()->getName();
+  ex = ase_convert_to_ase_exception("Java", tname, "", to_ase_variant(obj));
+}
+
+Lua呼び出しのcatch
+if (ase_is_ase_exception(v)) {
+  ase_exception_append_trace(v, ...);
+} else {
+  v = ase_convert_to_ase_exception("Lua", ase_string(), "", v);
+}
+
+-----------------------------------------------------------------------
+例外 案2
+
+ある言語の例外オブジェクトは、他の言語フレームを通っても元の例外
+オブジェクトのまま変わらない。
+
+JavaはThrowableしか投げられないが、どうするか？
+ASE->Javaのマーシャル結果がThrowableでないなら？
+ASEExceptionを作り、その中にjobjectをセットすればいい。
+class ASEException extends RuntimeException {
+  Object value;
+}
+Java->ASEのマーシャルの際、もしASEExceptionなら中身を返す？
+ or ASEがJavaの例外をcatchしたら、もしそれがASEExceptionなら中身を返す？
+
+-----------------------------------------------------------------------
+必須
+
+readdir()を使うな
+.cppモジュールで返値をセットし忘れるとクラッシュするのが気付きにくい。
+InvokeImpl*を無くす。
+LoadNow()
+ネイティブコードがC++例外を投げたらCLR関数へ帰る前にcatchせよ。
+各言語のコーディング方法の文書
+必要なdllの用意のしかたを文書に
+
+-----------------------------------------------------------------------
+重要
+
+ForceGC テスト
+WeakenProxies テスト
+CLRが作ったスレッドを終了時にフックすることは可能？
+
+-----------------------------------------------------------------------
+参考
+
+最も高速なメソッド呼び出し手順についてはluaimpl_getprop参照。
+メソッドを関数として呼ぶ手順についてはluaimpl_import_klass参照。
+
+jsでCLRオブジェクトをString(..)するとfailed to get pending exception
+(toStringが無いのが最初の例外の原因)
+
+vc8ではluaを最適化無しでビルドするべし(ex2.luaをテスト)
+
+multi-threadedなランタイム(COM, CLR, Java, C++)から他ランタイム上のオ
+ブジェクトを参照しているASEプロキシについては、ASE_SynchronizedVariant
+に置き換え、Weakenをサポートせよ。
+
+JavaのLateBindingインタフェースをASE_Variantと同等程度の機能に
+
+ID: 例外の種類をあらわすID(文字列)
+Func: __PRETTY_FUNCION__や__FUNCSIG__
+Line: __FILE__と__LINE__
+
+throw()指定している部分を全てなくすか？
+
+Javaの関数についてはunlockengineオプションをどうやって指定するか？
+
+pn2rhの問題は、Javaのオブジェクト->ネイティブに渡す->それを再びJavaに渡す
+ような時に元のJavaオブジェクトが正しく渡っていないのではないか。
+→ native関数がlocalrefを返すようにすれば正しく渡る。
+
+JS: jsのコールバック関数で例外を漏らしているものがほかにもあるかも。
+JSのコールバックとして使われている関数を全てチェックせよ。
+
+Pnutsの最適化が効いていない。Pnuts.setDefaults(...)で設定しなければなら
+ない。
+
+disposeExternalObjectsは、ExecutionContextを破壊する直前の、スレッドが
+一本になってからしか呼ばないようにする。そうしないとプロキシがラップする
+オブジェクトポインタがmutableになって同期化しなければならなくなる。(済)
+
+NativeオブジェクトについてもDisposeProxiesに相当するものを用意しなけれ
+ばならない。
+
+スクリプトエンジンの設定ファイル
+-----Foo.ase-----
+Name: Foo
+DLL: Foo
+Types: foo bar
+
+-----Baz.ase-----
+Name: Baz
+DLL: Foo
+Suffix: baz
+
+ホストオブジェクト
+実行環境には常に"Host"というグローバルオブジェクトが見える。
+ランタイム初期化の際にホストオブジェクトを"Host"に登録する。
+各ホストオブジェクトはASE_RawVariantFactory。
+
+jdbをアタッチ
+JAVA_OPTS="-verbose:jni -Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n" ../run.sh sw5x.lua
+jdb -attach localhost:8000
+
+
+DLLの読み込む場所
+libase-scr-*, libase-lib-*を探す場所
+  1. ASE_LIBEXECがセットされていればそのディレクトリを探す。されていない
+    場合は、Unixでは/usr/libexec/ase、Windowsでは実行形式と同じディレク
+    トリを探す。
+  2. カレントディレクトリを探す。
+JVMを探す場所
+  1. ASE_JVMがセットされていればそのライブラリを使う。
+  2. Unixでは/usr/java/default/jre/lib/*/server/libjvm.soを、
+    Windowsでは、JREのインストーラがレジストリに書き込んだ情報を
+    もとに既定のJVMを使う。
+PMCJSを探す場所
+  1. 通常のDLL読み込み規則を使って探す。つまり、UnixではLD_LIBRARY_PATH
+  や/lib, /usr/libなど、WindowsではPATHなど。
+インタプリタjarを探す場所
+
+ASE_Variant実装ガイドライン
+・GetString()は基本的には例外を投げない。ただしOOM等を除く。
+・オブジェクトに対し存在しないプロパティをGetProperty()したときにはvoidを返す。
+
+
+-----------------------
+ASETestCOM.TestObj
+ASETestCLR.TestObj
+ASETestNative.TestObj
+ASETestJava.TestObj
+
+obj.SetInt(x)
+obj.GetInt(x)
+obj.SetString(x)
+obj.GetString(x)
+obj.SetCallback(x)
+obj.GetCallback(x)
+obj.CallbackInt(count, args...)
+obj.CallbackString(count, args...)
+
+
+-----------------------------------------------------------------------
+IO関数の実行時エラーをerrnoを見て調べる必要があるかどうか
+
+関数(Linux man)(SUSV3)
+
+closedir(EBADF)(+EINTR)
+glob(GLOB_ABORTED, GLOB_NOMATCH, GLOB_NOSPACE)(同)
+getenv: (なし)(なし)
+opendir: (EACCESS, EMFILE, ENFILE, ENOENT, ENOMEM, ENOTDIR)(+ELOOP,
+  ENAMETOOLONG)
+readdir_r: (EBADF)(+EOVERFLOW)
+access: (EACCES, ELOOP, ENAMETOOLONG, ENOENT, EROFS, EFAULT, EINVAL, EIO,
+  ENOMEM, ETXTBSY)(EACCESS, ELOOP, ENAMETOOLONG, ENOENT, ENOTDIR, ETXTBSY)
+stat: (EACCESS, EBADF, EFAULT, ELOOP, ENAMETOOLONG, ENOENT, ENOMEM, ENOTDIR)(
+  EACCESS, EIO, ELOOP, ENAMETOOLONG, ENOENT, ENOTDIR, EOVERFLOW)
+chdir: (EACCESS, EFAULT, EIO, ELOOP, ENAMETOOLONG, ENOENT, ENOMEM, ENOTDIR)(
+  EACCESS, ELOOP, ENAMETOOLONG, ENOENT, ENOTDIR)
+pathconf: (なし)(EINVAL, ELOOP, EACCESS, EINVAL, ELOOP, ENAMETOOLONG, ENOTENT,
+  ENOTDIR)
+getcwd: (ENOMEM, ENOENT, ERANGE, EFAULT)(EINVAL, ERANGE, EACCESS, ENOMEM)
+pthread_self: (なし)(なし)
+dlopen: (なし)
+dlsym: (なし)
+dlerror: (なし)
+dlclose: (なし)
+
+FindClose
+FindFirstFileW
+wcslen
+FindNextFileW
+getenv_s
+getenv
+CompareFileTime
+SetCurrentDirectoryW
+GetCurrentDirectoryW
+GetCurrentThreadId
+LoadLibraryW
+
+-----------------------------------------------------------------------
+Java(asejni)の各クラス
+
+ASEException: Throwableでないase例外をwrapするためのクラス(予定)
+Compiler: javax.tools.JavaCompilerへのwrapper
+LateBinding: ase_variantのインタフェースに相当するJavaのインタフェース
+NativeProxy: aseのオブジェクトをwrapし、LateBindingインタフェースを提供
+Util: 各種ユーティリティ関数
+

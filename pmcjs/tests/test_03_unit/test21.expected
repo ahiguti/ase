@@ -1,0 +1,5 @@
+tiescalar fetch
+tiescalar store [5]
+tiescalar fetch
+z=123
+z=10

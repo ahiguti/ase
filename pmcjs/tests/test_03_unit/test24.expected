@@ -1,0 +1,13 @@
+Invoke throws TypeMismatch
+InvokeLC throws TypeMismatch
+SetProperty throws TypeMismatch
+DelProperty throws TypeMismatch
+Set throws TypeMismatch
+SetText throws TypeMismatch
+SetBinary throws TypeMismatch
+Get throws TypeMismatch
+GetText throws TypeMismatch
+GetBinary throws TypeMismatch
+toString throws TypeMismatch
+Detach throws TypeMismatch
+__noSuchMethod__ throws undefined

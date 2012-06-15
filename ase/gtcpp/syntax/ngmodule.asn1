@@ -1,0 +1,9 @@
+NGModule DEFINITIONS ::= BEGIN
+NGCmds ::= SEQUENCE OF NGCmd
+NGCmd ::= SEQUENCE {
+  cmd INTEGER,
+  seq IA5String,
+  bodyid IA5String,
+  body OCTET STRING OPTIONAL
+}
+END

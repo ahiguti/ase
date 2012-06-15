@@ -1,0 +1,27 @@
+
+var ModFoo = C.Module(
+  C.ClassDef('Foo',
+    C.ClassVar(C.Public('x')),
+    C.Var(C.Private('y')),
+    C.Method(C.Public('foo'),
+      C.Args('x', 'y', 'z'),
+      C.Inline('return a_x.GetInt() + a_y.GetInt() + a_z.GetInt()')
+    ),
+  ),
+  C.ClassDef('Bar'),
+);
+
+module Foo {
+  class Foo {
+    public classvar x;
+    private var y;
+    public method foo(x, y, z) {
+      __inline__('return a_x.GetInt() + a_y.GetInt() + a_z.GetInt()')
+    }
+  }
+  class Bar {
+  }
+}
+予約語: module, class, public, private, method, var, classmethod, classvar,
+  __inline__
+

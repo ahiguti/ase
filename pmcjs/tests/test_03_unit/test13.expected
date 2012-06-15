@@ -1,0 +1,16 @@
+tiehash store [a] [5]
+tiehash fetch [a]
+tiehash store [b] [6]
+tiehash fetch [b]
+tiehash store [c] [7]
+tiehash fetch [c]
+tiehash fetch [b]
+tiehash delete [c]
+tiehash firstkey = a
+tiehash nextkey = b
+tiehash nextkey = 
+tiehash fetch [a]
+tiehash fetch [b]
+xb=6
+k=a v=5
+k=b v=6

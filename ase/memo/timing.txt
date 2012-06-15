@@ -1,0 +1,38 @@
+
+r5540でArrayの実装にase_fast_mutexとase_null_mutexを使った場合を比較
+
+(fast_mutex)
+$ time ./aserun rmtsamples/rmtcli.lua -f rmtsamples/libase-lib-rmtsvr.so 1000000
+15
+done cnt=1000000
+
+real    0m1.150s
+user    0m1.150s
+sys     0m0.000s
+
+$ time ./aserun rmtsamples/rmtcli.lua -h inet::10025 10000
+15
+done cnt=10000
+
+real    0m1.080s
+user    0m0.540s
+sys     0m0.080s
+
+
+(null_mutex)
+$ time ./aserun rmtsamples/rmtcli.lua -f rmtsamples/libase-lib-rmtsvr.so 1000000
+15
+done cnt=1000000
+
+real    0m0.640s
+user    0m0.630s
+sys     0m0.010s
+
+$ time ./aserun rmtsamples/rmtcli.lua -h inet::10025 10000
+15
+done cnt=10000
+
+real    0m1.040s
+user    0m0.550s
+sys     0m0.030s
+

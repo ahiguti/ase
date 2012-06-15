@@ -1,0 +1,17 @@
+
+var SObject = JS['Object'];
+var SArray = JS['Array'];
+
+var sobj  = SObject();
+sobj['foo'] = 123;
+sobj['bar'] = 45.98;
+print(sobj['foo']);
+print(sobj['bar']);
+
+var sarr = SArray();
+for (var i = 0; i < 10; ++i) {
+  sarr[i] = i * 2;
+}
+for (var i = 0; i < 10; ++i) {
+  print(sarr[i]);
+}

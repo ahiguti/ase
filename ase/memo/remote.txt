@@ -1,0 +1,185 @@
+
+オペレーション
+00 NO NOOP
+01 RT 返値 [Val ...]
+02 TH 例外 Obj
+21 DE Destroy Obj
+22 AT GetAttributes Obj Int
+23 BO GetBoolean Obj Bool
+24 IN GetInt Obj Int
+25 LN GetLong Obj Long
+26 DB GetDouble Obj Double
+27 ST GetString Obj Str
+28 EQ IsSameObject Obj Bool
+29 GP GetProperty Obj Str
+3a SP SetProperty Obj Str Val
+3b DP DelProperty Obj Str
+3c GE GetElement Obj Int
+3d SE SetElement Obj Int Val
+3e GL GetLength Obj
+3f SL SetLength Obj Int
+40 IN InvokeByName Obj Str [Val ...]
+41 II InvokeById Obj Int [Val ...]
+42 IS InvokeSelf Obj [Val ...]
+43 EN GetEnumerator Obj
+44 NX EnumNext Obj
+
+S: RT M1fff9708 -- グローバルオブジェクトを返す
+C: AT Y1fff9708 -- GetAttributes
+S: RT I1        -- 返値
+C: BO Y1fff9708 -- GetBoolean
+S: RT B0
+C: GP Y1fff9708 Sabc%20def
+S: TH M1ff9970  -- 例外が投げられた
+C: NO           -- NOOP
+S: RT
+C: SP Y01fff9708 Sfoo M00732fd0 -- SetProperty
+S: AR Y00732fd0 -- クライアント側のオブジェクトをAddRef
+C: RT           -- ARに対するreturn
+S: RT           -- SPに対するreturn
+
+read_response(remote)
+{
+  while (true) {
+    op = read(remote); /* リクエストorレスポンスを読み出す */
+    if (op == RT || op == TH) {
+      /* プロトコル異常: レスポンスに対応するリクエストが無い */
+      return op;
+    }
+    rop = handle_call(sop);
+    write(remote, rop); /* レスポンスを書き込む */
+  }
+}
+
+call_remote(req)
+{
+  write(remote, req);
+  return read_response(remote);
+}
+
+handle_call(req)
+{
+  try {
+    
+    return r; /* RT */
+  } catch (...) {
+    return r; /* TH */
+  }
+}
+
+struct remote_handle {
+  map<Long, remoteobj *> remoteobj_map; /* remoteobjは弱参照 */
+    /* リモートオブジェクトのプロキシ(remoteobj)弱参照のリスト */
+  map<Long, Variant> localobj_map;
+    /* 相手から参照されているローカルオブジェクト(Variant)のリスト */
+};
+
+remoteobj {
+  Long id;
+  SharedPtr<remote_handle> rh; /* 共有 */
+  void Release() {
+    rh->remoteobj_map.erase(id);
+  }
+};
+
+新しいリモートオブジェクトを作る
+create_remote_object(rh, remote_id)
+{
+  remote_obj = new remoteobj(remote_id, rh); /* rhの共有所有権を持つ */
+  remote_variant = CreateObject(remote_obj);
+  rh->remoteobj_map[remote_id] = remote_obj; /* backrefをセット */
+  return remote_variant;
+}
+
+新しいローカルオブジェクトを登録する
+register_local_object(rh, obj)
+{
+  id = get_object_id(obj);
+  i = rh->localobj_map.find(id);
+  if (i != rh->localobj_map.end()) {
+    return id;
+  }
+  localobj_map.insert(id, obj);
+}
+
+ローカルオブジェクトを登録解除する(Destroyが呼ばれたとき実行される)
+unregister_local_object(rh, obj)
+{
+  id = get_object_id(obj);
+  rh->localobj_map.erase(id);
+}
+
+クライアント側新規接続シーケンス
+create_remote_top()
+{
+  SharedPtr<remote_handle> rh(new remote_handle());
+  rh->connect(サーバ);
+  remote_id = rh->receive();
+  return create_remote_object(rh, remote_id);
+    /* rhの所有権はremote_objectが持つ */
+}
+
+サーバ側新規接続シーケンス
+accept_remote(top)
+{
+  rh = create_remote_handle();
+  rh->accept();
+  rh->send(RT, top); /* topがマーシャルされてrh->localobj_mapに登録される */
+}
+
+/* リモートに渡すためにマーシャルする */
+marshal_object(v)
+{
+  if (v.IsRef()) {
+    if (v.GetVTable() == &remoteobj::vtable) {
+      return pair(true, v->id);
+    }
+    id = register_local_object(v);
+    return pair(false, id);
+  }
+  return pair(false, -1)
+}
+
+/* リモートから渡ってきたオブジェクトをアンマーシャルする */
+unmarshal_object(id, remote)
+{
+  if (remote) {
+    return unmarshal_remote_object(id);
+  } else {
+    return unmarshal_local_object(id);
+  }
+}
+
+unmarshal_remote_object(id)
+{
+  i = remoteobj_map.find(id);
+  if (i == remoteobj_map.end()) {
+    return create_remote_object(this, remote_id);
+  }
+  robj = i->second;
+  v = CreateObject(remote_obj, robj);
+  robj->AddRef();
+  return v;
+}
+
+unmarshal_local_object(id)
+{
+  i = localobj_map.find(id);
+  if (i == localobj_map.end()) {
+    throw ObjectNotFound();
+  }
+  return i->second;
+}
+
+receive()
+{
+  while (短すぎ) {
+    read_more();
+  }
+  return deserialize(); /* variantを返す */
+}
+
+send(variant v)
+{
+}
+

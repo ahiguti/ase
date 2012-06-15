@@ -1,0 +1,7 @@
+
+Lua.dofile("js2lua3.lua");
+obj = Lua.luafunc();
+for (k : obj) {
+  System.out.println(k + " : " + obj[k]);
+}
+

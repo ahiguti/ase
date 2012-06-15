@@ -1,0 +1,4 @@
+
+JS.eval("print(15.3);");
+eval("print(15.3);");
+

@@ -1,0 +1,6 @@
+Revision history for Perl extension JavaScript.
+
+0.01  Sat Aug  5 05:55:12 2006
+	- original version; created by h2xs 1.23 with options
+		-A -n JavaScript
+

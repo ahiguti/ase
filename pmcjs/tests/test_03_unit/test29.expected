@@ -1,0 +1,29 @@
+foo: argc=2
+wantarray=
+0: abc
+1: def
+foo: argc=2
+wantarray=1
+0: abc
+1: def
+foo: argc=3
+wantarray=
+0: FuncTest
+1: abc
+2: def
+foo: argc=3
+wantarray=1
+0: FuncTest
+1: abc
+2: def
+foo: argc=0
+wantarray=
+foo: argc=0
+wantarray=1
+10
+20
+30
+a: 10
+b: 20
+abc
+def

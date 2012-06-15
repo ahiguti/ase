@@ -1,0 +1,14 @@
+getfoo: this is foo
+getjsfoo: this is jsfoo
+detachjs
+getfoo: this is foo
+getjsfoo: undefined
+detachperl
+getfoo exception: (
+ etype: LogicError,
+ error: NoPerl,
+ func: pmc_plproxy_generic_prop,
+ description: not attached to a perl object,
+ at: 
+  func=[] file=test11.js line=24
+)

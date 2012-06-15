@@ -1,0 +1,9 @@
+
+ASE.Perl.Use("Term::Cap");
+t = ASE.Perl.Methods["Term::Cap"].Tgetent();
+t.Trequire("cl", "cm");
+s = "";
+s = s + t.Tputs("cl", 1);
+s = s + t.Tgoto("cm", 20, 5);
+System.out.println(s + "<- here is (20, 5)");
+

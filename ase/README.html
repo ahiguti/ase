@@ -1,0 +1,242 @@
+<html>
+<head>
+<title>Abstract Script Engines</title>
+<style type="text/css">
+<!--
+TABLE, TBODY, TR, TD, TH, DIV, UL, LI, FORM {
+ margin: 0px;
+ padding: 0px;
+ border: 0px none #000000;
+ border-collapse: collapse;
+}
+BODY {
+ margin: 0px;
+ padding: 50px;
+ border: 0px solid #808080;
+ font-family: 'Lucida Sans Unicode','MS UI Gothic',sans-selif;
+ overflow-y: scroll;
+ font-size: 80%;
+}
+TD, TH {
+ padding: 5px 10px 5px 10px;
+ text-align: left;
+ font-size: 80%;
+}
+P {
+ padding: 0px 30px 0px 30px;
+ line-height: 130%;
+ text-align: justify;
+ text-justify: newspaper;
+}
+UL {
+ padding: 5px 0px 5px 15px;
+}
+LI {
+ margin: 0px 30px 0px 30px;
+}
+DIV.code {
+ margin: 0px 30px 0px 30px;
+}
+PRE {
+ border: 1px solid #808080;
+ background-color: #f0f0f0;
+ padding: 20px;
+}
+IMG {
+ margin: 10px;
+ border: 0px solid #c0c0c0;
+ padding: 0px;
+}
+A {
+ color: #0000aa;
+ text-decoration: none;
+}
+A:hover {
+ color: #aa0000;
+ text-decoration: underline;
+}
+H1 {
+ font-weight: bold;
+ padding: 3px 20px 3px 20px;
+ border: 0px solid #b03030;
+ border-width: 0px 0px 2px 10px;
+ margin: 20px 1px 10px 0px;
+ font-size: 150%;
+}
+H2 {
+ font-weight: bold;
+ border: 0px solid #30b030;
+ border-width: 0px 0px 2px 10px;
+ padding: 3px 20px 3px 20px;
+ margin: 20px 1px 10px 0px;
+ font-size: 150%;
+}
+TABLE, TD, TR {
+ border: 1px solid #808080;
+}
+-->
+</style>
+</head>
+<body>
+
+<h1>Abstract Script Engines</h1>
+
+<p>
+Abstract Script Engines, or ASE, is a cross-platform and language-independent
+scripting environment. ASE has an in-process communication mechanism
+which allows objects to communicate together across language boundaries.
+Supported languages and runtimes for this release include C++, Java, COM,
+.NET, Lua, Perl, SpiderMonkey, and Rhino.
+</p>
+<p>
+Features:
+<ul>
+<li>Objects are usable across language boundaries. No IDL file is needed.</li>
+<li>Allows to create dynamic proxies for statically typed interfaces.
+  A Perl object can implement a Java interface, for example.</li>
+<li>Exceptions can be thrown across language boundaries. A C++ exception can
+  be caught by Java, for example.
+<li>Library DLLs are usable without any sort of registration.</li>
+<li>Supports multithreading.</li>
+<li>Script objects are accessible from C++ code via a single abstract datatype
+  named ASE_Variant. C++ objects can be exposed to scripts with minimal
+  effort, too. No explicit memory management is required.</li>
+<li>Licensed under the MIT/X11 License.</li>
+</ul>
+</p>
+
+<h2>Installing ASE: installer for Windows</h2>
+
+<p>
+<ul>
+  <li>Download asesetup from
+    <a href="http://www.gentype.com/asedownload/">the ASE download page</a>
+    and install it.</li>
+  <li>If you want to use Java with ASE, you need to install JRE version 6 or
+    later. You can download it from
+    <a href="http://java.sun.com/javase/downloads/index.jsp">
+      http://java.sun.com/javase/downloads/index.jsp</a>.</li>
+  <li>If you want to use Perl with ASE, you need to install ActivePerl 5.8.x.
+    You can download it from
+      <a href="http://www.activestate.com/Products/ActivePerl/">
+      http://www.activestate.com/Products/ActivePerl/</a>.</li>
+  <li>If you want to use .NET with ASE, you need to install .NET Framework
+    2.0 or newer. Use Windows Update to install .NET Framework.</li>
+</ul>
+</p>
+
+<h2>Installing ASE: source rpm packages for GNU/Linux</h2>
+
+<p>
+Download, build and install the following rpm packages.
+Source RPMs can be downloaded from
+  <a href="http://www.gentype.com/asedownload/">the ASE download page</a>.
+</p>
+<p>
+<table>
+<tbody>
+<tr><td>luacpp</td><td>Lua build with c++</td></tr>
+<tr><td>jsmt</td><td>SpiderMonkey build with multi-threading support</td></tr>
+<tr><td>jdk</td><td>Java SDK 
+  (<a href="http://java.sun.com/javase/downloads/index.jsp">
+    http://java.sun.com/javase/downloads/index.jsp
+    </a>)</td></tr>
+<tr><td>rhino</td><td>Rhino JavaScript interpreter</td></tr>
+<tr><td>pmcjs</td><td>Perl-SpiderMonkey bridge</td></tr>
+<tr><td>ase</td><td>ASE runtime</td></tr>
+</tbody>
+</table>
+</p>
+
+<h2>Installing ASE: source tarballs</h2>
+
+<p>
+Source tarballs can be downloaded from
+  <a href="http://www.gentype.com/asedownload/">the ASE download page</a>.
+There are some requrements for language engines to work with ASE.
+<ul>
+<li>SpiderMonkey must be build with JS_THREADSAFE. Thus you need NSPR to
+  build SpiderMonkey.
+<li>Lua must be build with C++, so that Lua uses C++ exceptions instead of
+  longjmp().</li>
+</ul>
+</p>
+
+<h2>Running scripts</h2>
+
+<p>
+On Windows, "aserun.exe" and "aserunw.exe" are the executables for
+ASE-compatible scripts. The former opens a console and the latter does not.
+Here is an example.
+<div class="code"><pre>
+    C:\Program Files\ASE\samples&gt;aserun genuuid.lua
+    a91868b7-cada-4f62-9ba0-2ff5108fd041
+</pre></div>
+</p>
+<p>
+On Unix OSes, "aserun" is the executable.
+<div class="code"><pre>
+    $ aserun genuuid.lua
+    df97470d-0bab-40b5-9a64-d9a1aff3f68a
+</pre></div>
+</p>
+
+<h2>Samples</h2>
+
+<p>
+There are some samples in the <a href="samples">samples</a> directory.
+</p>
+
+<p>
+<table>
+<tbody>
+<tr><th>Script</th><th>Uses</th></tr>
+<tr><td>args.js args.lua</td><td>Host.Args</td>
+  <td>shows how to get commandline arguments</td></tr>
+<tr><td>dir.js dir.lua dir.rh</td><td>Perl (IO::Dir)</td>
+  <td>uses a Perl module from other languages</tr>
+<tr><td>gd.js gd.lua gd.rh</td><td>Perl (GD)</td>
+  <td>generates a png file using GD library</tr>
+<tr><td>genuuid.js genuuid.lua genuuid.pl genuuid.rh</td>
+  <td>Native.Util.UUID</td>
+  <td>generate a UUID (aka GUID)</td></tr>
+<tr><td>glade.js glade.lua glade.rh</td><td>Perl (Gtk2::GladeXML)</td>
+  <td>a simple notepad</tr>
+<tr><td>javathread.js javathread.lua</td><td>Java (java.lang.Thread)</td>
+  <td>uses Java threads from JavaScript and Lua</tr>
+<tr><td>jsort.js jsort.lua jsort.pl</td><td>Java (java.util.Arrays)</td>
+  <td>shows how to create dynamic proxies for Java interfaces</tr>
+<tr><td>nativethread.lua nativethread.js</td><td>Native.Util.Thread</td></tr>
+<tr><td>swing.js swing.lua swing.pl</td><td>Java (javax.swing)</td>
+  <td>a simple GUI application</tr>
+<tr><td>termcap.js termcap.lua</td><td>Perl (Term::Cap)</td></tr>
+<tr><td>webbrowser.lua webbrowser.pl</td>
+  <td>CLR (System.Windows.Forms)</td>
+  <td>a minimal web browser</tr>
+<tr><td>word.js word.lua</td><td>COM (Word.Application)</td></tr>
+</tbody>
+</table>
+</p>
+
+<p>
+Samples in the <a href="svrsamples">svrsamples</a> directory show how to
+implement a library using a statically typed language and how to use it.
+</p>
+
+<p>
+<table>
+<tbody>
+<tr><td>svrsamples/native</td>
+  <td>C++</td></tr>
+<tr><td>svrsamples/java</td>
+  <td>Java</td></tr>
+<tr><td>svrsamples/clr</td>
+  <td>.NET assembly (Windows only)</td></tr>
+<tr><td>svrsamples/com</td>
+  <td>in-process COM server (Windows only)</td></tr>
+</tbody>
+</table>
+</p>
+
+</body>
+</html>

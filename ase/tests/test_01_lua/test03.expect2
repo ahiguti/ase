@@ -1,0 +1,2 @@
+(ASERuntime) uncaught exception
+(Id=Lua/String) test03.lua:3: attempt to perform arithmetic on a string value

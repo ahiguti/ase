@@ -1,0 +1,16 @@
+
+var Integer = java.lang.Integer;
+
+var x = new Integer(100);
+var y = new Integer(100);
+print(x.intValue());
+print(y.intValue());
+var eq = false;
+
+/* timing */
+for (var i = 0; i < 10000000; ++i) {
+  eq = x.equals(y);
+}
+
+print("EQUALS? " + eq);
+

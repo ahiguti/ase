@@ -1,0 +1,6 @@
+foo: [foooo]
+x.Detach()
+err: TypeMismatch
+foo: [foooo]
+Perl.Detach(x)
+foo: [undefined]

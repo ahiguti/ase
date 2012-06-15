@@ -1,0 +1,5 @@
+
+UUID = Native.Util.UUID;
+x = UUID();
+System.out.println(x.lower());
+

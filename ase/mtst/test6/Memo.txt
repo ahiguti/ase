@@ -1,0 +1,19 @@
+
+interface Property
+  Object get(String name, Context ctx);
+  void set(String name, Object value, Context ctx);
+
+interface AbstractData extends Property
+  Object invoke(String name, Object[] args, Context ctx);
+
+interface Indexed
+  Object get(int idx);
+  void set(int idx, Object value);
+
+interface Callable
+  Object call(Object[] args, Context ctx);
+
+PackageはPropertyインタフェースを実装しているので、pnutsのグローバル
+オブジェクトとしてはpackageを渡せばよい。
+
+

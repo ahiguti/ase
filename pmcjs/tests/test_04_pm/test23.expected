@@ -1,0 +1,10 @@
+$VAR1 = bless( {
+                 'foo' => 'bar',
+                 'baz' => 'fubar'
+               }, 'JavaScript::HTWrap' );
+
+$VAR1 = {
+          'baz' => 'fubar',
+          'foo' => 'bar'
+        };
+

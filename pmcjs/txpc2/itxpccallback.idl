@@ -1,0 +1,7 @@
+#include "nsISupports.idl" 
+[scriptable, uuid(a4d727d3-bbf3-499c-ac3e-0b7d2831225f)]
+interface ITXPCCallback : nsISupports
+{ 
+  void callback();
+};
+

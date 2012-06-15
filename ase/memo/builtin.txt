@@ -1,0 +1,35 @@
+
+メタ関数:
+get_attributes
+get_boolean
+get_int
+get_long
+get_double
+get_string
+is_same_object
+get_property
+set_property
+del_property
+get_element
+set_element
+get_length
+set_length
+invoke_by_name
+invoke_by_id
+invoke_self
+get_enumerator
+enum_next
+
+型・クラス:
+get_type - void, bool, int, long, double, string, objectのいずれかをintで返す
+get_class_name - vtbl->class_nameを返す
+get_methods - vtbl->methodsを返す
+get_instance_methods - instance->methodsを返す
+
+例外処理:
+to_exception - さまざまな型のデータを例外オブジェクトに変換する
+get_exception_id - 例外オブジェクトのid文字列を返す
+
+その他:
+print - コンソールに文字列を出力
+

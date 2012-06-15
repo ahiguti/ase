@@ -1,0 +1,7 @@
+
+/* SKIP_CHECKMEM */
+
+Perl.Use('Gtk2');
+
+var x = Perl.Methods;
+//var gtk = x['Gtk2'];

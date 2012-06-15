@@ -1,0 +1,32 @@
+time ../../aserun-local testint.cpp
+10000003
+0.18user 0.00system 0:00.19elapsed 98%CPU (0avgtext+0avgdata 0maxresident)k
+0inputs+0outputs (0major+1664minor)pagefaults 0swaps
+time ../../aserun-local testint.lua
+1000003
+0.50user 0.00system 0:00.51elapsed 99%CPU (0avgtext+0avgdata 0maxresident)k
+0inputs+0outputs (0major+1759minor)pagefaults 0swaps
+time ../../aserun-local testintfast.lua
+10000003
+1.90user 0.00system 0:01.91elapsed 100%CPU (0avgtext+0avgdata 0maxresident)k
+0inputs+0outputs (0major+1747minor)pagefaults 0swaps
+time ../../aserun-local teststr.lua
+9000003
+0.90user 0.00system 0:00.90elapsed 99%CPU (0avgtext+0avgdata 0maxresident)k
+0inputs+0outputs (0major+1758minor)pagefaults 0swaps
+time ../../aserun-local teststrfast.lua
+9000003
+0.57user 0.00system 0:00.57elapsed 99%CPU (0avgtext+0avgdata 0maxresident)k
+0inputs+0outputs (0major+1747minor)pagefaults 0swaps
+time ../../aserun-local testcbint.lua
+CallbackInt: 7 8 9 
+CallbackInt: r=9000000
+9000000
+0.44user 0.00system 0:00.45elapsed 99%CPU (0avgtext+0avgdata 0maxresident)k
+0inputs+0outputs (0major+1769minor)pagefaults 0swaps
+time ../../aserun-local testcbstr.lua
+CallbackString: foo bar baz 
+CallbackString: r=baz
+baz
+1.03user 0.00system 0:01.04elapsed 99%CPU (0avgtext+0avgdata 0maxresident)k
+0inputs+0outputs (0major+1756minor)pagefaults 0swaps

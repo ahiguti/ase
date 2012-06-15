@@ -1,0 +1,8 @@
+
+use XSTest;
+my $xt = XSTest->new();
+for (my $i = 0; $i < 1000000; ++$i) {
+  $xt->setValue(1000);
+}
+print($xt->getValue());
+

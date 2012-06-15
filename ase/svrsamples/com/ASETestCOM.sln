@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual Studio 2005
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ASETestCOM", "ASETestCOM\ASETestCOM.vcproj", "{FF6C2421-06E4-417C-9389-0BB9BCB0C5EE}"
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "ASETestCOMSetup", "ASETestCOMSetup\ASETestCOMSetup.vdproj", "{684A7F52-CF00-43BC-B3B6-E4D229D4C54A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{FF6C2421-06E4-417C-9389-0BB9BCB0C5EE}.Debug|Win32.ActiveCfg = Debug|Win32
+		{FF6C2421-06E4-417C-9389-0BB9BCB0C5EE}.Debug|Win32.Build.0 = Debug|Win32
+		{FF6C2421-06E4-417C-9389-0BB9BCB0C5EE}.Release|Win32.ActiveCfg = Release|Win32
+		{FF6C2421-06E4-417C-9389-0BB9BCB0C5EE}.Release|Win32.Build.0 = Release|Win32
+		{684A7F52-CF00-43BC-B3B6-E4D229D4C54A}.Debug|Win32.ActiveCfg = Debug
+		{684A7F52-CF00-43BC-B3B6-E4D229D4C54A}.Release|Win32.ActiveCfg = Release
+		{684A7F52-CF00-43BC-B3B6-E4D229D4C54A}.Release|Win32.Build.0 = Release
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

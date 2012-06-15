@@ -1,0 +1,5 @@
+
+var x = Pnuts.eval("[]");
+x["foo"] = 10; // error
+print(x.foo);
+

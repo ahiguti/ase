@@ -1,0 +1,5 @@
+nargs=4
+arg 0 arg1
+arg 1 arg2
+arg 2 漢字x
+arg 3 foo

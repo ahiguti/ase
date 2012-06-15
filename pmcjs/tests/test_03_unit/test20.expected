@@ -1,0 +1,34 @@
+foo invoked
+x1=6
+enum1
+ITER k=0 v=undefined
+ITER k=1 v=6
+ITER k=2 v=undefined
+ITER k=3 v=5
+ITER k=4 v=undefined
+ITER k=5 v=undefined
+ITER k=6 v=undefined
+ITER k=7 v=undefined
+ITER k=8 v=undefined
+ITER k=9 v=7
+enum2
+ITER k=0 v=undefined
+ITER k=1 v=6
+ITER k=2 v=undefined
+ITER k=3 v=5
+ITER k=4 v=undefined
+ITER k=5 v=undefined
+ITER k=6 v=undefined
+ITER k=7 v=undefined
+ITER k=8 v=undefined
+enum3
+ROOP i=0 v=undefined
+ROOP i=1 v=6
+ROOP i=2 v=undefined
+ROOP i=3 v=5
+ROOP i=4 v=undefined
+ROOP i=5 v=undefined
+ROOP i=6 v=undefined
+ROOP i=7 v=undefined
+ROOP i=8 v=undefined
+30

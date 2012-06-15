@@ -1,0 +1,6 @@
+
+$a = [System.Reflection.Assembly]::LoadFile("C:/Program Files/CalcSetup/MCalcServer.dll")
+$mc = $a.GetType("MCalcServer.MCalc")
+$x = New-Object $mc
+for ($i = 0; $i -lt 1000000; $i++) { $x.Add(1) }
+

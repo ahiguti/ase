@@ -1,0 +1,8 @@
+args:
+foo
+bar
+baz
+perl args:
+foo
+bar
+baz

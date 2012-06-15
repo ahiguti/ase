@@ -1,0 +1,21 @@
+
+class Foo {
+  public static foo(x) {
+  }
+  public static foo(a, b, c) {
+    return a + b + c;
+  }
+  bar(x) {
+    i = 0;
+    while (x.Next()) {
+      x.foo().bar();
+      ++i;
+    }
+    for (j = 0; j < 10; ++j) {
+      x.put();
+    }
+    return i;
+  }
+  public var v;
+}
+

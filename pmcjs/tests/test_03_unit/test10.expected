@@ -1,0 +1,10 @@
+r=1200
+600
+evaltest: exception: (
+ etype: RuntimeException,
+ error: PerlException,
+ func: pmc_funccall_internal,
+ description: ReferenceError: foo is not defined at EvalTest.pm line 7. ,
+ at: 
+  func=[] file=test10.js line=7
+)

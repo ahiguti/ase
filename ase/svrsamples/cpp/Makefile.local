@@ -1,0 +1,24 @@
+
+include ../../MakefileCommon.mk
+
+run: libase-lib-ASETestCPP.so
+	time ../../aserun-local testint.cpp
+	time ../../aserun-local testint.lua
+	time ../../aserun-local testintfast.lua
+	time ../../aserun-local testobj.lua
+	time ../../aserun-local testder.lua
+	time ../../aserun-local testder2.lua
+	# time ../../aserun-local teststr.lua
+	# time ../../aserun-local teststrfast.lua
+	# time ../../aserun-local testcbint.lua
+	# time ../../aserun-local testcbstr.lua
+
+libase-lib-ASETestCPP.so: asetestcpp.cpp
+	$(CXX) -I../.. -O3 -g -Wall -fPIC -shared $< \
+		-o $@
+
+clean:
+	rm -f *.so
+	rm -f *.dll *.lib *.exp *.ilk *.pdb
+	-cd vc8 && rm -rf *.ncb *.suo *.vcproj.* Debug Release
+

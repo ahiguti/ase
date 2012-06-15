@@ -1,0 +1,3 @@
+CallbackString x=foo y=bar z=baz
+CallbackString r=baz
+baz

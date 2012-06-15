@@ -1,0 +1,15 @@
+ASERemoteModule DEFINITIONS ::= BEGIN
+ASERemoteVariant ::= CHOICE {
+	voidval	NULL,
+	boolval	BOOLEAN,
+	intval	INTEGER,
+	realval	REAL,
+	strval	UTF8String,
+	objval	SEQUENCE {
+		remote	BOOLEAN,
+		id	INTEGER
+	},
+	arrval	[1] SEQUENCE OF ASERemoteVariant,
+	mapval	[2] SEQUENCE OF ASERemoteVariant
+}
+END

@@ -1,0 +1,34 @@
+Summary: pmcjs
+Name: pmcjs
+Version: ___VERSION___
+Release: 1
+Group: System Environment/Libraries
+License: MIT/X11
+Source: pmcjs-%{version}.tar.gz
+BuildRoot: /var/tmp/%{name}-%{version}-root
+BuildRequires: perl jsmt nspr-devel
+Requires: jsmt nspr
+
+%description
+
+%prep
+%setup
+
+%build
+make notest
+
+%install
+rm -rf $RPM_BUILD_ROOT
+mkdir -p $RPM_BUILD_ROOT/%{_bindir}
+mkdir -p $RPM_BUILD_ROOT/%{_libdir}
+mkdir -p $RPM_BUILD_ROOT/usr/include/
+install -m 755 libpmcjs.so $RPM_BUILD_ROOT/%{_libdir}
+install -m 755 jspl $RPM_BUILD_ROOT/%{_bindir}
+install -m 644 pmcjs.h $RPM_BUILD_ROOT/usr/include/
+
+%files
+%defattr(-, root, root)
+/usr/include/*
+%{_bindir}/*
+%{_libdir}/*
+

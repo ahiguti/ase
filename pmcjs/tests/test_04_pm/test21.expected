@@ -1,0 +1,7 @@
+STORE[bar]
+STORE[Xbar]
+FETCH[XXbar]
+FETCH[XXbar]
+FETCH[XXbar]
+FETCH[XXbar]
+db[foo] = XXbar

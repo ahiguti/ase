@@ -1,0 +1,17 @@
+#!/bin/bash
+
+exec_dirname="`dirname $0`"
+if ( uname -a | grep -qi CYGWIN ); then
+  unset ASE_LIBEXEC
+else
+  export ASE_LIBEXEC="$exec_dirname"
+  export LD_LIBRARY_PATH="$exec_dirname"
+fi
+
+if [ "$1" == "" ]; then
+  echo "Usage: $0 FILENAME"
+  exit 1
+fi
+
+exec "$exec_dirname/aserun" $@
+

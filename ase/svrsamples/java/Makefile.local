@@ -1,0 +1,16 @@
+
+include ../../MakefileCommon.mk
+
+run: ASETestJava.jar
+	time ../../aserun-local testint.lua
+	time ../../aserun-local teststr.lua
+	time ../../aserun-local testcbint.lua
+	time ../../aserun-local testcbstr.lua
+
+ASETestJava.jar: ASETestJava/TestObj.java ASETestJava/CallbackInterface.java
+	$(SUNJDK)/bin/javac -g ASETestJava/TestObj.java
+	$(SUNJDK)/bin/jar -cf ASETestJava.jar ASETestJava/*.class
+
+clean:
+	rm -f *.jar */*.class
+

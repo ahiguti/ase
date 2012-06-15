@@ -1,0 +1,57 @@
+
+PMCVERSION = 0.1
+
+CC = cl
+LD = link
+PERLDIR = c:/Perl
+PERL = $(PERLDIR)/bin/perl
+
+CFLAGS += -W3 -GX -I.
+CFLAGS += -DNDEBUG -DPMCJS_EXPORTS
+CFLAGS += -I../deps/nsprpub/dist/include/nspr
+CFLAGS += -I../deps/js/src -DJS_THREADSAFE -DXP_WIN
+CFLAGS += $(shell $(PERL) -MExtUtils::Embed -e ccopts)
+LDFLAGS += @perlldopts.rsp
+LDFLAGS += /DELAYLOAD:perl510.dll delayimp.lib
+LDFLAGS += $(shell echo ../deps/nsprpub/dist/lib/libnspr4.lib)
+LDFLAGS += $(shell echo ../depslns/js/*/js32*.lib)
+
+PMCJS_OBJS = \
+	pmcjs.obj poutil.obj pmobject.obj poprivate.obj pmconv.obj \
+	pjsobject.obj pjsglobal.obj pjsobjiter.obj pmutf.obj utfconv.obj \
+	utfutil.obj polist.obj pmcexception.obj pcondemand.obj
+
+all: libpmcjs.dll jspl prepare # test
+
+%.obj : %.c
+	$(CC) -c $(CFLAGS) $^
+
+%.obj : %.cpp
+	$(CC) -c $(CFLAGS) -Tp $^
+
+libpmcjs.dll: $(PMCJS_OBJS) JavaScript/JavaScript.obj
+	$(PERL) -MExtUtils::Embed -e ldopts | sed -e 's/ -nodefaultlib / /' \
+		> perlldopts.rsp
+	$(LD) /OUT:"libpmcjs.dll" /DLL $(PMCJS_OBJS) \
+	JavaScript/JavaScript.obj $(LDFLAGS)
+
+JavaScript/JavaScript.obj: JavaScript/JavaScript.xs
+	cd JavaScript; $(PERL) -MDevel::PPPort -e 'Devel::PPPort::WriteFile()'
+	cd JavaScript; $(PERL) Makefile.win32.PL; unset MAKEFLAGS; \
+		nmake JavaScript.obj
+
+jspl: $(PMCJS_OBJS) jspl.obj libpmcjs.dll
+	$(LD) /SUBSYSTEM:CONSOLE jspl.obj $(PMCJS_OBJS) \
+	JavaScript/JavaScript.obj $(LDFLAGS)
+
+pmctest: $(PMCJS_OBJS) pmctest.obj libpmcjs.dll
+	$(LD) /SUBSYSTEM:CONSOLE pmctest.obj $(PMCJS_OBJS) \
+	JavaScript/JavaScript.obj $(LDFLAGS)
+
+prepare:
+	cp ../deps/nsprpub/dist/lib/libnspr4.dll .
+	cp ../depslns/js/*/js32*.dll .
+
+test: jspl
+	cd tests && $(MAKE)
+

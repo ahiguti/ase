@@ -1,0 +1,10 @@
+a=abc
+b=abc
+
+a=def
+b=def
+
+a=foobar
+b=FooBar
+
+c1=1 c2=0

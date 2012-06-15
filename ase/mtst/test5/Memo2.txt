@@ -1,0 +1,174 @@
+
+グローバル環境の取得
+lua_pushvalue(L, LUA_GLOBALSINDEX);
+スタックトップにグローバル環境が返る。
+
+Luaプロキシの作成
+(luaproxyのコンストラクタ)
+lua_pushlightuserdata(L, this); luaproxyポインタをレジストリのキーにする
+lua_pushvalue(L, valindex);
+lua_rawset(L, LUA_REGISTRYINDEX);
+(luaproxyのデストラクタ)
+lua_pushlightuserdata(L, this);
+lua_pushnil(L);
+lua_rawset(L, LUA_REGISTRYINDEX);
+
+getPropertyの実装
+lua_pushlightuserdata(L, this);
+lua_rawget(L, LUA_REGISTRYINDEX);
+lua_pushlstring(L, name, namelen);
+lua_gettable(L, -2);
+return aselua_toase(sc, L, -1);
+
+setPropertyの実装
+lua_pushlightuserdata(L, this);
+lua_rawget(L, LUA_REGISTRYINDEX);
+lua_pushlstring(L, name, namelen);
+aselua_tolua(sc, L, value);
+lua_settable(L, index);
+
+invokeSelfの実装
+lua_pushlightuserdata(L, this);
+lua_rawget(L, LUA_REGISTRYINDEX);
+for (ASE_SizeType i = 0; i < nargs; ++i) {
+  aselua_tolua(sc, L, args[i]);
+}
+lua_call(L, nargs, 1);
+return aselua_toase(sc, L, -1);
+
+ASEメタテーブルの作成
+(ASEメタテーブルのキーはポインタscを使うか？)
+lua_pushlightuserdata(L, ASEメタテーブルのキー);
+lua_newtable(L);
+/* mtbl[0]にASEメタテーブルのキーをセットする。これはuserdataがaseproxyか
+  どうか判別しなければならない場合に使用する */
+lua_pushlightuserdata(L, ASEメタテーブルのキー);
+lua_rawseti(L, -2, 0);
+/* 各種メタ関数を登録 */
+lua_pushlstring(L, "__index");
+lua_pushcfunction(L, aselua_cb_getprop);
+lua_rawset(L, -3);
+lua_pushlstring(L, "__newindex");
+lua_pushcfunction(L, aselua_cb_setprop);
+lua_rawset(L, -3);
+lua_pushlstring(L, "__call");
+lua_pushcfunction(L, aselua_cb_invokeself);
+lua_rawset(L, -3);
+lua_pushlstring(L, "__gc");
+lua_pushcfunction(L, aselua_cb_finalize);
+lua_rawset(L, -3);
+/* レジストリに登録 */
+lua_rawset(L, LUA_REGISTRYINDEX);
+
+ASEプロキシの作成
+aseproxy *p = lua_newuserdata(L, sizeof(aseproxy));
+new(p) aseproxy(); /* voidに初期化 */
+lua_pushlightuserdata(L, ASEメタテーブルのキー);
+lua_rawget(L, LUA_REGISTRYINDEX);
+lua_setmetatable(L, -2); /* これでファイナライザが有効になった */
+p->value = value;
+
+__indexの実装
+aseproxy *p = lua_touserdata(L, 1);
+const char *name = lua_tostring(L, 2);
+size_t namelen = lua_strlen(L, 2);
+ASE_Int id = p->value.getMethodID(name, namelen);
+if (id >= 0) {
+  lua_pushvalue(L, 1);
+  lua_pushnumber(L, id);
+  lua_pushcclosure(L, aselua_invokemethod, 2);
+  return 1;
+}
+ASE_Value v = p->value.getProperty(name16, name16len);
+aselua_tolua(sc, L, v);
+return 1;
+
+__newindexの実装
+aseproxy *p = lua_touserdata(L, 1);
+const char *name = lua_tostring(L, 2);
+size_t namelen = lua_strlen(L, 2);
+ASE_Variant value = aselua_toase(sc, L, 3);
+p->value.setProperty(name16, name16len, value);
+return 0;
+
+__callの実装
+aseproxy *p = lua_touserdata(L, 1);
+ASE_SizeType nargs = lua_gettop(L) - 1;
+ASE_Value args[nargs];
+for (ASE_SizeType i = 0; i < n; ++i) {
+  args[i] = aselua_toase(sc, L, i + 2);
+}
+ASE_Value v = p->value.invokeSelf(args, nargs);
+aselua_tolua(sc, L, v);
+return 1;
+
+invokemethodの実装
+aseproxy *p = lua_touserdata(L, lua_upvalueindex(1));
+lua_Number id = lua_tonumber(L, lua_upvalueindex(2));
+ASE_SizeType nargs = lua_gettop(L);
+ASE_Value args[nargs];
+for (ASE_SizeType i = 0; i < n; ++i) {
+  args[i] = aselua_toase(sc, L, i + 1);
+}
+ASE_Value v = p->value.invokeByID(id, args, nargs);
+aselua_tolua(sc, L, v);
+return 1;
+
+__gcの実装
+aseproxy *p = lua_touserdata(L, 1);
+p->~aseproxy();
+return 0;
+
+aselua_toluaの実装
+if (vtable == sc) {
+  luaproxy *p = priv;
+  lua_pushlightuserdata(L, p); (luaproxyポインタがレジストリのキー)
+  lua_rawget(L, LUA_REGISTRYINDEX);
+  return;
+}
+ASE_VType vt = v.getType();
+if (ASE_Variant::isValueType(vt)) {
+  ...
+  return;
+}
+aselua_create_aseproxy(sc, L, value);
+return;
+
+aselua_toaseの実装
+int ty = lua_type(L, idx);
+switch (ty) {
+case LUA_TNIL:
+case LUA_TBOOLEAN:
+case LUA_TNUMBER:
+case LUA_TSTRING:
+  ...
+  return v;
+}
+if (ty == LUA_TUSERDATA) {
+  if (lua_getmetatable(L, idx)) { /* +1 */
+    /* mtbl[0]がASEメタテーブルのキーと一致するか調べる */
+    lua_rawgeti(L, -1, 0); /* +1 */
+    if (lua_touserdata(L, -1) == sc) {
+      /* これはaseproxyである */
+      aseproxy *p = lua_touserdata(L, idx);
+      lua_pop(L, 2);
+      return p->value;
+    }
+    lua_pop(L, 2);
+  }
+}
+std::auto_ptr<luaproxy *> p(new luaproxy());
+ASE_Variant r = ASE_Variant::createObject(sc->get_variant_vtable(), p,
+  "LuaObject");
+return r;
+
+例外処理
+luaがエラーを起こすとluai_jmpbufをthrowする(C++ビルド)
+  #define luai_jmpbuf     int
+aseからluaを呼ぶコード
+・lua_cpcallでluaの例外を全て捕獲。
+・lua_cpcallが呼ぶ関数の中で、CPP例外は全て捕獲し、luaのエラーへ変換しな
+  ければならない。lua_cpcallはcatch(...)で全ての例外を握りつぶしてしまう。
+luaからaseを呼ぶコード
+・CPP例外を全て捕獲し、luaのエラーへ変換。luaが投げたエラーはそのままスルー。
+

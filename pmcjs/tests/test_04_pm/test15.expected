@@ -1,0 +1,18 @@
+char: A
+code: 41
+name: LATIN CAPITAL LETTER A
+char: あ
+code: 3042
+name: HIRAGANA LETTER A
+char: ア
+code: 30a2
+name: KATAKANA LETTER A
+char: ぁ
+code: 3041
+name: HIRAGANA LETTER SMALL A
+char: ｱ
+code: ff71
+name: HALFWIDTH KATAKANA LETTER A
+char: 漢
+code: 6f22
+name: CJK UNIFIED IDEOGRAPH-6F22

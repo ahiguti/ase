@@ -1,0 +1,6 @@
+getprop: これは海豹
+getprop_smart: これは海豹
+setprop: 99
+setprop_smart: 123
+invoke: 24
+invoke_smart: 210

@@ -1,0 +1,15 @@
+
+メソッド呼び出しの高速化ポイント
+
+1. GetMethodIdをサポートする。
+  (jsとluaが利用)
+  VTOpt に ASE_VTOption_SupportsGetMethodId をセット。
+  GetMethodIdを実装する。メソッドが見付からないときはASE_MethodIdNotFound。
+
+
+2. VTable::Methods, VTable::Instanceをサポートする。
+  (luaが利用。ASELuaUtil.Import()を使う)
+  クラス・インスタンス共にVTable::Methodsをセット。
+  クラスオブジェクトのVTable::Instanceをセット。
+  呼び出す側はGetInstanceMethods()でインスタンスのメソッド一覧を取得。
+

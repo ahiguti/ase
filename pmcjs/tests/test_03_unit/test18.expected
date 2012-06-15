@@ -1,0 +1,9 @@
+[0, 2, 4, 6]
+({a:"b", c:"d"})
+(function (x, y) {return x + y;})
+[0, 2, 4, 6]
+({a:"b", c:"d"})
+(function (x, y) {return x + y;})
+arr extract ok
+obj extract ok
+fnc extract ok

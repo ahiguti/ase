@@ -1,0 +1,10 @@
+A
+(
+ etype: RuntimeException,
+ error: PerlException,
+ func: pmc_eval_internal,
+ description: syntax error at (eval 3) line 1, near "$foo(" ,
+ at: 
+  func=[] file=test39.js line=4
+)
+B

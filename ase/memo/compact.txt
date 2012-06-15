@@ -1,0 +1,21 @@
+[pid  5989] write(5, "\212\1\1G\0\340N\343d\224+", 11) = 11
+[pid  5989] read(5, "\221\0010G\377\340N\343d\224+fCreate", 4096) = 18
+[pid  5989] write(5, "\210\1\1E\0\260o}\32", 9) = 9
+[pid  5989] read(5, "\230\0010E\377\260o}\32cSum\364\1\1\1\2\1\3\1\4\1\5\365", 4096) = 25
+[pid  5989] write(5, "\204\1\1\1\17", 5) = 5
+[pid  5989] read(5, "", 4096)           = 0
+
+[pid  6107] write(4, "\241\24\241\0220\20\2\1\0010\v\1\1\0\2\6*\261\274\5\336\340", 22) = 22
+[pid  6107] read(4, "\241\34\241\0320\30\2\00100\v\1\1\377\2\6*\261\274\5\336\340\f\6Create", 4096) = 30
+[pid  6107] write(4, "\241\22\241\0200\16\2\1\0010\t\1\1\0\2\4\f\376\360@", 20) = 20
+[pid  6107] read(4, "\241,\241*0(\2\00100\t\1\1\377\2\4\f\376\360@\f\3Sum\241\23\241\0210\17\2"..., 4096) = 46
+[pid  6107] write(4, "\241\n\241\0100\6\2\1\1\2\1\17", 12) = 12
+[pid  6107] read(4, "", 4096)           = 0
+
+[pid  6343] write(4, "<ASERemoteVariant><arrval><intval>1</intval><objval><remote><false/></remote><id>47665678130912</id></objval></arrval></ASERemoteVariant>", 137) = 137
+[pid  6343] read(4, "<ASERemoteVariant><arrval><intval>48</intval><objval><remote><true/></remote><id>47665678130912</id></objval><strval>Create</strval></arrval></ASERemoteVariant>", 4096) = 160
+[pid  6343] write(4, "<ASERemoteVariant><arrval><intval>1</intval><objval><remote><false/></remote><id>534905728</id></objval></arrval></ASERemoteVariant>", 132) = 132
+[pid  6343] read(4, "<ASERemoteVariant><arrval><intval>48</intval><objval><remote><true/></remote><id>534905728</id></objval><strval>Sum</strval><arrval><intval>1</intval><intval>2</intval><intval>3</intval><intval>4</intval><intval>5</intval></arrval></arrval></ASERemoteVariant>", 4096) = 259
+[pid  6343] write(4, "<ASERemoteVariant><arrval><intval>1</intval><intval>15</intval></arrval></ASERemoteVariant>", 91) = 91
+[pid  6343] read(4, "", 4096)           = 0
+
